@@ -2,9 +2,10 @@ fetch('https://telegram-proxy.felipe-eduardoroo.workers.dev/', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
-    message: '🔔 Teste do Worker!',
+    message: '🔔 Teste do Worker com o novo bot!',
     secret: 'X7kP2mN9qR4vL8sW'
   })
 })
 .then(res => res.json())
-.then(data => console.log(data));
+.then(data => console.log('Resposta:', data))
+.catch(err => console.error('Erro:', err));
