@@ -3,330 +3,89 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>📊 Histórico de Indicadores BTC – V7</title>
+  <title>🔬 Teste - Funding Rate BTC</title>
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
   <style>
-    * { box-sizing: border-box; font-family: system-ui, sans-serif; }
-    body { background: #f5f7fb; margin: 0; padding: 20px; color: #1e1e2f; }
-    .container { max-width: 1400px; margin: 0 auto; }
-    h1 { display: flex; align-items: center; gap: 12px; border-bottom: 2px solid #e0e4ec; padding-bottom: 12px; }
-    h1 small { font-size: 0.9rem; font-weight: 400; color: #6b7280; margin-left: auto; }
-    .controls { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 20px 0; background: #fff; padding: 16px 24px; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-    .controls label { font-weight: 600; }
-    .controls select, .controls input { padding: 8px 14px; border: 1px solid #d1d5db; border-radius: 30px; background: #fff; font-size: 0.95rem; }
-    .controls button { padding: 8px 24px; border: none; border-radius: 30px; background: #4f46e5; color: #fff; font-weight: 600; cursor: pointer; transition: 0.2s; }
-    .controls button:hover { background: #4338ca; }
-    .controls button:disabled { opacity: 0.5; pointer-events: none; }
-    .status-bar { margin: 12px 0; padding: 10px 18px; background: #eef2f6; border-radius: 30px; font-size: 0.95rem; display: flex; align-items: center; gap: 12px; }
-    .status-bar .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid #4f46e5; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 20px; margin-top: 20px; }
-    .card { background: #fff; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 16px 18px; transition: 0.2s; border: 1px solid #e9ecf2; display: flex; flex-direction: column; }
-    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }
-    .card-header h3 { margin: 0; font-size: 1.1rem; }
-    .card-header .source { font-size: 0.7rem; background: #eef0f5; padding: 2px 10px; border-radius: 20px; color: #4b5563; }
-    .card-body { flex: 1; overflow-x: auto; max-height: 300px; overflow-y: auto; margin: 8px 0; }
-    .card-body table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-    .card-body th { background: #f3f4f6; position: sticky; top: 0; z-index: 2; padding: 6px 8px; text-align: left; font-weight: 600; color: #374151; border-bottom: 2px solid #d1d5db; }
-    .card-body td { padding: 5px 8px; border-bottom: 1px solid #e5e7eb; white-space: nowrap; }
-    .card-body tr:hover { background: #f9fafb; }
-    .card-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
-    .btn { padding: 6px 16px; border: none; border-radius: 30px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: 0.15s; background: #eef0f5; color: #1e1e2f; }
-    .btn-primary { background: #4f46e5; color: #fff; }
-    .btn-primary:hover { background: #4338ca; }
-    .btn-success { background: #16a34a; color: #fff; }
-    .btn-success:hover { background: #15803d; }
-    .btn-danger { background: #dc2626; color: #fff; }
-    .btn-danger:hover { background: #b91c1c; }
-    .btn:disabled { opacity: 0.4; pointer-events: none; }
-    .empty-msg { color: #9ca3af; font-style: italic; padding: 12px 0; text-align: center; }
-    .footnote { margin-top: 30px; padding: 16px; background: #fff; border-radius: 12px; border: 1px solid #e5e7eb; font-size: 0.85rem; color: #4b5563; }
-    .footnote a { color: #4f46e5; text-decoration: none; }
-    .footnote a:hover { text-decoration: underline; }
-    @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+    body { font-family: system-ui, sans-serif; padding: 20px; background: #f5f7fb; }
+    h1 { color: #1e1e2f; }
+    button { background: #4f46e5; color: white; border: none; padding: 12px 30px; border-radius: 30px; font-size: 1rem; font-weight: bold; cursor: pointer; }
+    button:hover { background: #4338ca; }
+    #output { 
+      background: #1e1e2a; 
+      color: #cdd6e0; 
+      padding: 20px; 
+      border-radius: 12px; 
+      max-height: 600px; 
+      overflow: auto; 
+      white-space: pre-wrap; 
+      font-family: 'Courier New', monospace; 
+      font-size: 0.85rem; 
+      margin-top: 20px;
+      border: 1px solid #333;
+    }
+    .ok { color: #a6e3a1; }
+    .err { color: #f38ba8; }
   </style>
 </head>
 <body>
-<div class="container">
-  <h1>📈 Histórico de Indicadores – BTC <small>Estratégia V7 · Backtest</small></h1>
-  <div class="controls">
-    <label for="periodSelect">Período:</label>
-    <select id="periodSelect">
-      <option value="7">Últimos 7 dias</option>
-      <option value="30" selected>Últimos 30 dias</option>
-      <option value="90">Últimos 90 dias</option>
-      <option value="180">Últimos 180 dias</option>
-      <option value="365">Último ano</option>
-      <option value="max">Máximo disponível</option>
-    </select>
-    <label for="startDate">Personalizado:</label>
-    <input type="date" id="startDate">
-    <label for="endDate">até</label>
-    <input type="date" id="endDate">
-    <button id="loadBtn">🔄 Carregar Dados</button>
-    <button id="downloadAllBtn" class="btn-success">📥 Baixar Todos CSV</button>
-  </div>
-  <div id="statusBar" class="status-bar"><span>✅ Pronto para carregar.</span></div>
-  <div id="cardsGrid" class="grid"></div>
-  <div class="footnote">⚠️ <strong>Limitações:</strong> OI e Long/Short têm ~30 dias de histórico via Binance. MVRV/SOPR/Realized Price são proxies via preço (Binance).</div>
-</div>
-<script>
-  // ---------- CONFIG ----------
-const SYMBOL = 'BTCUSDT';
-const BINANCE_FAPI = 'https://fapi.binance.com';
-const BINANCE_API = 'https://api.binance.com';
 
-const periodSelect = document.getElementById('periodSelect');
-const startDateInput = document.getElementById('startDate');
-const endDateInput = document.getElementById('endDate');
-const loadBtn = document.getElementById('loadBtn');
-const downloadAllBtn = document.getElementById('downloadAllBtn');
-const statusBar = document.getElementById('statusBar');
-const cardsGrid = document.getElementById('cardsGrid');
+  <h1>🔬 Teste de Conectividade - Funding Rate</h1>
+  <p>Este teste busca os <strong>últimos 1000 registros</strong> de Funding Rate do BTCUSDT diretamente da API da Binance.</p>
+  <button id="loadBtn">📥 Carregar Dados</button>
+  <div id="output">Clique no botão para iniciar o teste...</div>
 
-let allData = {};
+  <script>
+    document.getElementById('loadBtn').addEventListener('click', async function() {
+      const output = document.getElementById('output');
+      output.textContent = '⏳ Conectando à API da Binance...';
 
-function setStatus(msg, isLoading = false) {
-  statusBar.innerHTML = isLoading ? `<span class="spinner"></span> ${msg}` : `✅ ${msg}`;
-}
+      // URL SIMPLES: sem paginação, apenas os 1000 registros mais recentes
+      const url = 'https://fapi.binance.com/fapi/v1/fundingRate?symbol=BTCUSDT&limit=1000';
 
-function formatDate(ts) {
-  return new Date(ts).toISOString().replace('T', ' ').substring(0, 16);
-}
+      try {
+        // 1. Faz a requisição
+        const response = await fetch(url);
+        
+        // 2. Verifica se a resposta é ok
+        if (!response.ok) {
+          throw new Error(`HTTP Error: ${response.status} - ${response.statusText}`);
+        }
 
-function formatNumber(n) {
-  if (n === undefined || n === null) return '';
-  if (typeof n === 'string') n = parseFloat(n);
-  if (isNaN(n)) return n;
-  if (Math.abs(n) > 1e6) return n.toFixed(2);
-  if (Math.abs(n) < 0.01) return n.toFixed(6);
-  return n.toFixed(4);
-}
+        // 3. Converte para JSON
+        const data = await response.json();
 
-function downloadCSV(data, filename) {
-  if (!data || data.length === 0) { alert('Dados vazios.'); return; }
-  const headers = Object.keys(data[0]);
-  const rows = data.map(row => headers.map(h => row[h] ?? '').join(','));
-  const csv = [headers.join(','), ...rows].join('\n');
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = filename;
-  link.click();
-  URL.revokeObjectURL(link.href);
-}
+        // 4. Verifica se veio dados
+        if (!data || data.length === 0) {
+          output.textContent = '❌ Nenhum dado encontrado.';
+          return;
+        }
 
-function getDateRange() {
-  let start, end;
-  const period = periodSelect.value;
-  const now = new Date();
-  const endDateVal = endDateInput.value;
-  const startDateVal = startDateInput.value;
-  if (endDateVal && startDateVal) {
-    start = new Date(startDateVal);
-    end = new Date(endDateVal);
-    if (start > end) { start.setDate(start.getDate() - 1); }
-    return { start, end };
-  }
-  end = new Date(now);
-  if (period === 'max') {
-    start = new Date(2019, 0, 1);
-  } else {
-    const days = parseInt(period) || 30;
-    start = new Date(now);
-    start.setDate(start.getDate() - days);
-  }
-  start.setHours(0,0,0,0);
-  end.setHours(23,59,59,999);
-  return { start, end };
-}
+        // 5. Exibe o resultado no formato texto
+        let texto = `✅ SUCESSO! Foram carregados ${data.length} registros.\n\n`;
+        texto += `📊 ÚLTIMOS 10 REGISTROS (do mais recente para o mais antigo):\n`;
+        texto += `--------------------------------------------------\n`;
+        
+        // Mostra os 10 primeiros (que são os mais recentes)
+        const exibir = data.slice(0, 10);
+        exibir.forEach((item, index) => {
+          const dataHora = new Date(item.fundingTime).toLocaleString('pt-BR');
+          const taxa = (parseFloat(item.fundingRate) * 100).toFixed(4);
+          texto += `${index+1}. Data: ${dataHora} | Taxa: ${taxa}% | Preço Mark: $${parseFloat(item.markPrice).toFixed(2)}\n`;
+        });
 
-// ---------- BUSCAS COM TIMEOUT ----------
-async function fetchWithTimeout(url, timeoutMs = 10000) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const resp = await fetch(url, { signal: controller.signal });
-    clearTimeout(timeout);
-    return resp;
-  } catch (err) {
-    clearTimeout(timeout);
-    throw err;
-  }
-}
+        texto += `\n💡 Dica: Se você viu esta lista, a API FUNCIONA! Agora podemos expandir para os outros indicadores.`;
+        output.textContent = texto;
 
-async function fetchFundingRate(start, end) {
-  const all = [];
-  let currentStart = start.getTime();
-  const endTime = end.getTime();
-  const limit = 1000;
-  let page = 0;
-  while (currentStart < endTime) {
-    const url = `${BINANCE_FAPI}/fapi/v1/fundingRate?symbol=${SYMBOL}&startTime=${currentStart}&endTime=${endTime}&limit=${limit}`;
-    const resp = await fetchWithTimeout(url);
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    const data = await resp.json();
-    if (!data || data.length === 0) break;
-    all.push(...data);
-    currentStart = data[data.length-1].fundingTime + 1;
-    page++;
-    if (page > 50) break;
-  }
-  return all.map(item => ({
-    data: formatDate(item.fundingTime),
-    fundingRate: parseFloat(item.fundingRate),
-    markPrice: parseFloat(item.markPrice)
-  }));
-}
+        // Também exibe no console do F12 para debug
+        console.log('✅ Dados brutos carregados (primeiros 10):', data.slice(0, 10));
 
-async function fetchOpenInterest() {
-  const url = `${BINANCE_FAPI}/futures/data/openInterestHist?symbol=${SYMBOL}&period=1h&limit=500`;
-  const resp = await fetchWithTimeout(url);
-  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-  const data = await resp.json();
-  return data.map(item => ({
-    data: formatDate(item.timestamp),
-    sumOpenInterest: parseFloat(item.sumOpenInterest),
-    sumOpenInterestValue: parseFloat(item.sumOpenInterestValue)
-  }));
-}
+      } catch (erro) {
+        // Qualquer erro (rede, CORS, timeout) cai aqui
+        output.textContent = `❌ ERRO NA REQUISIÇÃO:\n${erro.message}\n\nVerifique sua conexão com a internet e tente novamente.`;
+        console.error('Erro detalhado:', erro);
+      }
+    });
+  </script>
 
-async function fetchLongShortRatio() {
-  const url = `${BINANCE_FAPI}/fapi/v1/topLongShortAccountRatio?symbol=${SYMBOL}&period=1h&limit=500`;
-  const resp = await fetchWithTimeout(url);
-  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-  const data = await resp.json();
-  return data.map(item => ({
-    data: formatDate(item.timestamp),
-    longAccount: parseFloat(item.longAccount),
-    shortAccount: parseFloat(item.shortAccount),
-    longShortRatio: parseFloat(item.longShortRatio)
-  }));
-}
-
-async function fetchMarketDataBinance() {
-  // Usamos candles diários da Binance (mais estável que CoinGecko)
-  const url = `${BINANCE_FAPI}/fapi/v1/klines?symbol=BTCUSDT&interval=1d&limit=500`;
-  const resp = await fetchWithTimeout(url);
-  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-  const data = await resp.json();
-  return data.map(candle => ({
-    data: formatDate(candle[0]),
-    price: parseFloat(candle[4]),
-    marketCap: 0, // não temos, mas ignoramos
-    volume: parseFloat(candle[5])
-  }));
-}
-  // ---------- CARREGAMENTO RESILIENTE ----------
-async function loadAllData() {
-  const { start, end } = getDateRange();
-  setStatus(`⏳ Carregando dados...`, true);
-  loadBtn.disabled = true;
-  downloadAllBtn.disabled = true;
-
-  try {
-    const results = await Promise.allSettled([
-      fetchFundingRate(start, end),
-      fetchOpenInterest(),
-      fetchLongShortRatio(),
-      fetchMarketDataBinance()
-    ]);
-
-    const [fundingResult, oiResult, lsResult, marketResult] = results;
-    allData = {
-      funding: fundingResult.status === 'fulfilled' ? fundingResult.value : [],
-      oi: oiResult.status === 'fulfilled' ? oiResult.value : [],
-      ls: lsResult.status === 'fulfilled' ? lsResult.value : [],
-      market: marketResult.status === 'fulfilled' ? marketResult.value : []
-    };
-
-    if (fundingResult.status === 'rejected') console.warn('Funding falhou:', fundingResult.reason);
-    if (oiResult.status === 'rejected') console.warn('OI falhou:', oiResult.reason);
-    if (lsResult.status === 'rejected') console.warn('LS falhou:', lsResult.reason);
-    if (marketResult.status === 'rejected') console.warn('Market falhou:', marketResult.reason);
-
-    renderCards();
-    const total = allData.funding.length + allData.oi.length + allData.ls.length + allData.market.length;
-    setStatus(`✅ Dados: Funding (${allData.funding.length}), OI (${allData.oi.length}), LS (${allData.ls.length}), Market (${allData.market.length})`);
-    if (total === 0) setStatus('❌ Nenhum dado carregado. Tente novamente.');
-
-  } catch (err) {
-    setStatus(`❌ Erro: ${err.message}`);
-    console.error(err);
-  } finally {
-    loadBtn.disabled = false;
-    downloadAllBtn.disabled = false;
-  }
-}
-
-// ---------- RENDER ----------
-function renderCards() {
-  cardsGrid.innerHTML = '';
-  const indicators = [
-    { id: 'funding', label: 'Funding Rate', source: 'Binance', data: allData.funding || [],
-      columns: ['data', 'fundingRate', 'markPrice'], format: { fundingRate: n => (n*100).toFixed(4)+'%', markPrice: n => '$'+formatNumber(n) } },
-    { id: 'oi', label: 'Open Interest', source: 'Binance (~30d)', data: allData.oi || [],
-      columns: ['data', 'sumOpenInterest', 'sumOpenInterestValue'], format: { sumOpenInterest: n => formatNumber(n), sumOpenInterestValue: n => '$'+formatNumber(n) } },
-    { id: 'ls', label: 'Long/Short Ratio', source: 'Binance (~30d)', data: allData.ls || [],
-      columns: ['data', 'longAccount', 'shortAccount', 'longShortRatio'], format: { longAccount: n => n.toFixed(2)+'%', shortAccount: n => n.toFixed(2)+'%', longShortRatio: n => n.toFixed(3) } },
-    { id: 'market', label: 'Preço e Volume (diário)', source: 'Binance', data: allData.market || [],
-      columns: ['data', 'price', 'volume'], format: { price: n => '$'+formatNumber(n), volume: n => formatNumber(n) } }
-  ];
-
-  indicators.forEach(ind => {
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.innerHTML = `
-      <div class="card-header"><h3>${ind.label}</h3><span class="source">${ind.source}</span></div>
-      <div class="card-body">
-        ${ind.data.length === 0 ? '<div class="empty-msg">Sem dados (falha na API)</div>' : `
-          <table>
-            <thead><tr>${ind.columns.map(c => `<th>${c}</th>`).join('')}</tr></thead>
-            <tbody>
-              ${ind.data.slice(-50).map(row => `
-                <tr>${ind.columns.map(col => {
-                  let val = row[col];
-                  if (ind.format && ind.format[col]) val = ind.format[col](val);
-                  else if (typeof val === 'number') val = formatNumber(val);
-                  else val = val ?? '';
-                  return `<td>${val}</td>`;
-                }).join('')}</tr>
-              `).join('')}
-            </tbody>
-          </table>
-          ${ind.data.length > 50 ? `<div style="font-size:0.7rem;color:#6b7280;text-align:right;">Últimos 50 de ${ind.data.length}</div>` : ''}
-        `}
-      </div>
-      <div class="card-actions">
-        <button class="btn btn-primary" onclick="downloadCSV(allData['${ind.id}'], '${ind.id}_btc.csv')">📥 CSV</button>
-      </div>
-    `;
-    cardsGrid.appendChild(card);
-  });
-}
-
-// ---------- EVENTOS ----------
-loadBtn.addEventListener('click', loadAllData);
-downloadAllBtn.addEventListener('click', () => {
-  ['funding','oi','ls','market'].forEach(id => {
-    if (allData[id] && allData[id].length > 0) downloadCSV(allData[id], `${id}_btc.csv`);
-  });
-});
-
-// Remove service workers antigos
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
-}
-
-window.addEventListener('load', () => {
-  const now = new Date();
-  const past = new Date(now); past.setDate(past.getDate() - 30);
-  startDateInput.value = past.toISOString().split('T')[0];
-  endDateInput.value = now.toISOString().split('T')[0];
-  loadAllData();
-});
-</script>
 </body>
 </html>
