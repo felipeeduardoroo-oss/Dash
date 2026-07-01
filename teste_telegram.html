@@ -99,7 +99,7 @@
   const cardsGrid = document.getElementById('cardsGrid');
 
   // Estado
-  let allData = {}; // armazena dados carregados por indicador
+  let allData = {};
 
   // ---------- UTILITÁRIOS ----------
   function setStatus(msg, isLoading = false) {
@@ -146,13 +146,12 @@
     }
     end = new Date(now);
     if (period === 'max') {
-      start = new Date(2019, 0, 1); // início do contrato perpétuo
+      start = new Date(2019, 0, 1);
     } else {
       const days = parseInt(period) || 30;
       start = new Date(now);
       start.setDate(start.getDate() - days);
     }
-    // Ajusta para início/fim do dia
     start.setHours(0,0,0,0);
     end.setHours(23,59,59,999);
     return { start, end };
@@ -174,7 +173,7 @@
       all.push(...data);
       currentStart = data[data.length-1].fundingTime + 1;
       page++;
-      if (page > 50) break; // segurança
+      if (page > 50) break;
     }
     return all.map(item => ({
       data: formatDate(item.fundingTime),
@@ -184,7 +183,6 @@
   }
 
   async function fetchOpenInterest() {
-    // Binance retorna apenas 30 dias via este endpoint (ou limit=500)
     const url = `${BINANCE_FAPI}/futures/data/openInterestHist?symbol=${SYMBOL}&period=1h&limit=500`;
     const resp = await fetch(url);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
@@ -210,14 +208,12 @@
   }
 
   async function fetchMarketData(start, end) {
-    // CoinGecko – máximo 365 dias por chamada, mas podemos usar 'max' até 2019
     const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
     const url = `${COINGECKO_API}/coins/bitcoin/market_chart?vs_currency=usd&days=${days}&interval=daily`;
     const resp = await fetch(url);
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status} - CoinGecko pode estar com rate limit`);
     const data = await resp.json();
     if (!data.prices) return [];
-    // Combinar preço, market cap e volume
     const prices = data.prices || [];
     const marketCaps = data.market_caps || [];
     const volumes = data.total_volumes || [];
@@ -234,7 +230,7 @@
     return result;
   }
 
-  // ---------- CARREGAR TODOS OS DADOS ----------
+  // ---------- CARREGAR TODOS OS DADOS (VERSÃO RESILIENTE) ----------
   async function loadAllData() {
     const { start, end } = getDateRange();
     setStatus(`⏳ Carregando dados de ${start.toLocaleDateString()} até ${end.toLocaleDateString()}...`, true);
@@ -242,20 +238,43 @@
     downloadAllBtn.disabled = true;
 
     try {
-      // Buscar em paralelo
-      const [funding, oi, ls, market] = await Promise.all([
+      // Usamos allSettled para que uma falha não derrube as outras
+      const results = await Promise.allSettled([
         fetchFundingRate(start, end),
         fetchOpenInterest(),
         fetchLongShortRatio(),
         fetchMarketData(start, end)
       ]);
 
-      allData = { funding, oi, ls, market };
+      const [fundingResult, oiResult, lsResult, marketResult] = results;
+
+      allData = {
+        funding: fundingResult.status === 'fulfilled' ? fundingResult.value : [],
+        oi: oiResult.status === 'fulfilled' ? oiResult.value : [],
+        ls: lsResult.status === 'fulfilled' ? lsResult.value : [],
+        market: marketResult.status === 'fulfilled' ? marketResult.value : []
+      };
+
+      if (fundingResult.status === 'rejected') console.warn('⚠️ Funding Rate falhou:', fundingResult.reason);
+      if (oiResult.status === 'rejected') console.warn('⚠️ Open Interest falhou:', oiResult.reason);
+      if (lsResult.status === 'rejected') console.warn('⚠️ Long/Short falhou:', lsResult.reason);
+      if (marketResult.status === 'rejected') console.warn('⚠️ Dados de Mercado falhou:', marketResult.reason);
+
       renderCards();
-      setStatus(`✅ Dados carregados: Funding (${funding.length}), OI (${oi.length}), Long/Short (${ls.length}), Mercado (${market.length})`);
+
+      const total = allData.funding.length + allData.oi.length + allData.ls.length + allData.market.length;
+      setStatus(`✅ Dados carregados (parcial): Funding (${allData.funding.length}), OI (${allData.oi.length}), Long/Short (${allData.ls.length}), Mercado (${allData.market.length})`);
+
+      if (total === 0) {
+        setStatus('❌ Nenhum dado foi carregado. Verifique sua conexão ou tente novamente mais tarde (limite de API).');
+      }
+
     } catch (err) {
-      setStatus(`❌ Erro: ${err.message}`);
+      setStatus(`❌ Erro crítico: ${err.message}`);
       console.error(err);
+      if (Object.values(allData).some(arr => arr.length > 0)) {
+        renderCards();
+      }
     } finally {
       loadBtn.disabled = false;
       downloadAllBtn.disabled = false;
@@ -266,7 +285,6 @@
   function renderCards() {
     cardsGrid.innerHTML = '';
 
-    // Definir indicadores
     const indicators = [
       { id: 'funding', label: 'Funding Rate', source: 'Binance Futures API', data: allData.funding || [],
         columns: ['data', 'fundingRate', 'markPrice'], format: { fundingRate: n => (n*100).toFixed(4)+'%', markPrice: n => '$'+formatNumber(n) } },
@@ -282,17 +300,15 @@
       const card = document.createElement('div');
       card.className = 'card';
 
-      // Header
       const header = document.createElement('div');
       header.className = 'card-header';
       header.innerHTML = `<h3>${ind.label}</h3><span class="source">${ind.source}</span>`;
       card.appendChild(header);
 
-      // Body (tabela)
       const body = document.createElement('div');
       body.className = 'card-body';
       if (ind.data.length === 0) {
-        body.innerHTML = '<div class="empty-msg">Nenhum dado disponível</div>';
+        body.innerHTML = '<div class="empty-msg">Nenhum dado disponível (falha na API ou período sem registros)</div>';
       } else {
         const table = document.createElement('table');
         const thead = document.createElement('thead');
@@ -306,7 +322,6 @@
         table.appendChild(thead);
 
         const tbody = document.createElement('tbody');
-        // Mostrar últimos 50 registros (para não sobrecarregar)
         const displayData = ind.data.slice(-50);
         displayData.forEach(row => {
           const tr = document.createElement('tr');
@@ -338,7 +353,6 @@
       }
       card.appendChild(body);
 
-      // Actions
       const actions = document.createElement('div');
       actions.className = 'card-actions';
       const btnDownload = document.createElement('button');
@@ -377,9 +391,7 @@
   loadBtn.addEventListener('click', loadAllData);
   downloadAllBtn.addEventListener('click', downloadAllCSV);
 
-  // Carregar automaticamente ao abrir
   window.addEventListener('load', () => {
-    // Definir datas padrão (últimos 30 dias)
     const now = new Date();
     const past = new Date(now);
     past.setDate(past.getDate() - 30);
