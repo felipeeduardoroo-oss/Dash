@@ -3,119 +3,128 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Coletor de Indicadores BTC – Backtest V7</title>
+  <title>📊 Histórico de Indicadores BTC – V7</title>
   <style>
-    * { box-sizing: border-box; font-family: system-ui, sans-serif; }
-    body { max-width: 1100px; margin: 2rem auto; padding: 0 1.5rem; background: #f8f9fc; color: #1a1a2e; }
-    h1 { border-bottom: 2px solid #2d2d44; padding-bottom: 0.5rem; display: flex; align-items: center; gap: 0.8rem; }
-    .badge { background: #2d2d44; color: #fff; font-size: 0.8rem; padding: 0.2rem 0.8rem; border-radius: 20px; }
-    .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.2rem; margin: 1.5rem 0; }
-    .card { background: #fff; border-radius: 16px; padding: 1.2rem 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #e9ecf2; transition: 0.2s; }
-    .card:hover { border-color: #6c63ff; box-shadow: 0 6px 16px rgba(108,99,255,0.1); }
-    .card h3 { margin: 0 0 0.3rem 0; font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center; }
-    .card .source { font-size: 0.7rem; background: #eef0f5; padding: 0.2rem 0.6rem; border-radius: 12px; color: #444; }
-    .card p { margin: 0.4rem 0; font-size: 0.9rem; color: #555; }
-    .card .actions { display: flex; gap: 0.6rem; margin-top: 0.8rem; flex-wrap: wrap; }
-    .btn { background: #eef0f5; border: none; padding: 0.5rem 1.2rem; border-radius: 30px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: 0.2s; color: #1a1a2e; }
-    .btn-primary { background: #6c63ff; color: #fff; }
-    .btn-primary:hover { background: #5a52d9; }
-    .btn-success { background: #2e7d32; color: #fff; }
-    .btn-success:hover { background: #1e5f22; }
-    .btn-danger { background: #c62828; color: #fff; }
-    .btn:disabled { opacity: 0.5; pointer-events: none; }
-    .status { margin: 0.5rem 0; font-size: 0.9rem; color: #2d2d44; background: #f0f2f6; padding: 0.5rem 1rem; border-radius: 30px; display: inline-block; }
-    .log-area { background: #1e1e2a; color: #cdd6e0; padding: 1rem; border-radius: 12px; max-height: 250px; overflow-y: auto; font-family: 'Courier New', monospace; font-size: 0.8rem; white-space: pre-wrap; margin-top: 1.5rem; }
-    .log-area .ok { color: #a6e3a1; }
-    .log-area .err { color: #f38ba8; }
-    .log-area .info { color: #89b4fa; }
-    .flex-row { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; margin: 0.5rem 0 1rem 0; }
-    .flex-row label { font-weight: 600; }
-    input[type="date"] { padding: 0.3rem 0.8rem; border-radius: 30px; border: 1px solid #ccc; }
-    .all-download { margin: 1rem 0; display: flex; gap: 1rem; flex-wrap: wrap; }
-    hr { margin: 2rem 0; border: none; border-top: 2px dashed #dce0e8; }
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+    body { background: #f5f7fb; margin: 0; padding: 20px; color: #1e1e2f; }
+    .container { max-width: 1400px; margin: 0 auto; }
+    h1 { display: flex; align-items: center; gap: 12px; border-bottom: 2px solid #e0e4ec; padding-bottom: 12px; }
+    h1 small { font-size: 0.9rem; font-weight: 400; color: #6b7280; margin-left: auto; }
+    .controls { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 20px 0; background: #fff; padding: 16px 24px; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+    .controls label { font-weight: 600; }
+    .controls select, .controls input { padding: 8px 14px; border: 1px solid #d1d5db; border-radius: 30px; background: #fff; font-size: 0.95rem; }
+    .controls button { padding: 8px 24px; border: none; border-radius: 30px; background: #4f46e5; color: #fff; font-weight: 600; cursor: pointer; transition: 0.2s; }
+    .controls button:hover { background: #4338ca; }
+    .controls button:disabled { opacity: 0.5; pointer-events: none; }
+    .status-bar { margin: 12px 0; padding: 10px 18px; background: #eef2f6; border-radius: 30px; font-size: 0.95rem; display: flex; align-items: center; gap: 12px; }
+    .status-bar .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid #4f46e5; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 20px; margin-top: 20px; }
+    .card { background: #fff; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 16px 18px; transition: 0.2s; border: 1px solid #e9ecf2; display: flex; flex-direction: column; }
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }
+    .card-header h3 { margin: 0; font-size: 1.1rem; }
+    .card-header .source { font-size: 0.7rem; background: #eef0f5; padding: 2px 10px; border-radius: 20px; color: #4b5563; }
+    .card-body { flex: 1; overflow-x: auto; max-height: 300px; overflow-y: auto; margin: 8px 0; }
+    .card-body table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    .card-body th { background: #f3f4f6; position: sticky; top: 0; z-index: 2; padding: 6px 8px; text-align: left; font-weight: 600; color: #374151; border-bottom: 2px solid #d1d5db; }
+    .card-body td { padding: 5px 8px; border-bottom: 1px solid #e5e7eb; white-space: nowrap; }
+    .card-body tr:hover { background: #f9fafb; }
+    .card-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+    .btn { padding: 6px 16px; border: none; border-radius: 30px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: 0.15s; background: #eef0f5; color: #1e1e2f; }
+    .btn-primary { background: #4f46e5; color: #fff; }
+    .btn-primary:hover { background: #4338ca; }
+    .btn-success { background: #16a34a; color: #fff; }
+    .btn-success:hover { background: #15803d; }
+    .btn-danger { background: #dc2626; color: #fff; }
+    .btn-danger:hover { background: #b91c1c; }
+    .btn:disabled { opacity: 0.4; pointer-events: none; }
+    .empty-msg { color: #9ca3af; font-style: italic; padding: 12px 0; text-align: center; }
+    .footnote { margin-top: 30px; padding: 16px; background: #fff; border-radius: 12px; border: 1px solid #e5e7eb; font-size: 0.85rem; color: #4b5563; }
+    .footnote a { color: #4f46e5; text-decoration: none; }
+    .footnote a:hover { text-decoration: underline; }
+    @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
+<div class="container">
+  <h1>
+    📈 Histórico de Indicadores – BTC
+    <small>Estratégia V7 · Backtest</small>
+  </h1>
 
-<h1>
-  📊 Coletor de Indicadores – BTC
-  <span class="badge">V7 Backtest</span>
-</h1>
-<p style="color:#555; margin-top: -0.5rem;">Baixe históricos completos (até 4 anos) de cada métrica. Fontes 100% gratuitas via API pública.</p>
+  <div class="controls">
+    <label for="periodSelect">Período:</label>
+    <select id="periodSelect">
+      <option value="7">Últimos 7 dias</option>
+      <option value="30" selected>Últimos 30 dias</option>
+      <option value="90">Últimos 90 dias</option>
+      <option value="180">Últimos 180 dias</option>
+      <option value="365">Último ano</option>
+      <option value="max">Máximo disponível</option>
+    </select>
+    <label for="startDate">Personalizado:</label>
+    <input type="date" id="startDate">
+    <label for="endDate">até</label>
+    <input type="date" id="endDate">
+    <button id="loadBtn">🔄 Carregar Dados</button>
+    <button id="downloadAllBtn" class="btn-success">📥 Baixar Todos CSV</button>
+  </div>
 
-<div class="flex-row">
-  <label for="startDate">Data de início (4 anos atrás):</label>
-  <input type="date" id="startDate" value="2022-07-01">
-  <label for="endDate">Data fim (hoje):</label>
-  <input type="date" id="endDate">
-  <button class="btn btn-primary" onclick="setDefaultDates()">⏳ 4 anos atrás</button>
+  <div id="statusBar" class="status-bar">
+    <span>✅ Pronto para carregar.</span>
+  </div>
+
+  <div id="cardsGrid" class="grid">
+    <!-- Cards serão gerados dinamicamente -->
+  </div>
+
+  <div class="footnote">
+    ⚠️ <strong>Limitações conhecidas:</strong> Open Interest e Long/Short Ratio via Binance API têm histórico limitado a ~30 dias. MVRV/SOPR/Realized Price são proxies via preço/market cap/volume (CoinGecko). ETF Flows e Order Book não possuem API gratuita – veja <a href="https://farside.co.uk/bitcoin-etf-flow/" target="_blank">Farside</a> para fluxos manuais.
+  </div>
 </div>
-
-<div class="cards" id="cardsContainer">
-  <!-- Os cards serão gerados via JS -->
-</div>
-
-<div class="all-download">
-  <button class="btn btn-success" onclick="downloadAll()">📥 Baixar TODOS (sequencial)</button>
-  <button class="btn btn-danger" onclick="clearLogs()">🗑️ Limpar logs</button>
-</div>
-
-<div class="log-area" id="logArea">🟢 Pronto para coleta. Clique em um botão para iniciar.</div>
 
 <script>
-  // ---------- CONFIGURAÇÕES ----------
+  // ---------- CONFIG ----------
   const SYMBOL = 'BTCUSDT';
   const BINANCE_FAPI = 'https://fapi.binance.com';
-  const BINANCE_API = 'https://api.binance.com';
   const COINGECKO_API = 'https://api.coingecko.com/api/v3';
 
   // Elementos
-  const startInput = document.getElementById('startDate');
-  const endInput = document.getElementById('endDate');
-  const logArea = document.getElementById('logArea');
-  const cardsContainer = document.getElementById('cardsContainer');
+  const periodSelect = document.getElementById('periodSelect');
+  const startDateInput = document.getElementById('startDate');
+  const endDateInput = document.getElementById('endDate');
+  const loadBtn = document.getElementById('loadBtn');
+  const downloadAllBtn = document.getElementById('downloadAllBtn');
+  const statusBar = document.getElementById('statusBar');
+  const cardsGrid = document.getElementById('cardsGrid');
 
-  // Data padrão: 4 anos atrás até hoje
-  function setDefaultDates() {
-    const now = new Date();
-    const fourYearsAgo = new Date(now);
-    fourYearsAgo.setFullYear(now.getFullYear() - 4);
-    startInput.value = fourYearsAgo.toISOString().split('T')[0];
-    endInput.value = now.toISOString().split('T')[0];
-  }
-  setDefaultDates();
+  // Estado
+  let allData = {}; // armazena dados carregados por indicador
 
   // ---------- UTILITÁRIOS ----------
-  function log(msg, type = 'info') {
-    const prefix = type === 'ok' ? '✅' : type === 'err' ? '❌' : 'ℹ️';
-    logArea.innerHTML += `\n${prefix} ${msg}`;
-    logArea.scrollTop = logArea.scrollHeight;
+  function setStatus(msg, isLoading = false) {
+    statusBar.innerHTML = isLoading ? `<span class="spinner"></span> ${msg}` : `✅ ${msg}`;
   }
 
-  function clearLogs() {
-    logArea.innerHTML = '🟢 Logs limpos.';
+  function formatDate(ts) {
+    return new Date(ts).toISOString().replace('T', ' ').substring(0, 16);
   }
 
-  function getDateRange() {
-    const start = new Date(startInput.value);
-    const end = new Date(endInput.value);
-    if (isNaN(start) || isNaN(end) || start > end) {
-      throw new Error('Datas inválidas. Verifique o intervalo.');
-    }
-    return { start, end };
-  }
-
-  function toTimestamp(date) { return date.getTime(); }
-
-  function formatCSV(rows, headers) {
-    if (!rows || rows.length === 0) return 'Dados vazios\n';
-    const headerLine = headers.join(',');
-    const body = rows.map(row => headers.map(h => row[h] ?? '').join(',')).join('\n');
-    return headerLine + '\n' + body;
+  function formatNumber(n) {
+    if (n === undefined || n === null) return '';
+    if (typeof n === 'string') n = parseFloat(n);
+    if (isNaN(n)) return n;
+    if (Math.abs(n) > 1e6) return n.toFixed(2);
+    if (Math.abs(n) < 0.01) return n.toFixed(6);
+    return n.toFixed(4);
   }
 
   function downloadCSV(data, filename) {
-    const blob = new Blob([data], { type: 'text/csv;charset=utf-8;' });
+    if (!data || data.length === 0) { alert('Dados vazios.'); return; }
+    const headers = Object.keys(data[0]);
+    const rows = data.map(row => headers.map(h => row[h] ?? '').join(','));
+    const csv = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = filename;
@@ -123,301 +132,261 @@
     URL.revokeObjectURL(link.href);
   }
 
-  // ---------- COLEÇÃO DE DADOS (INDICADORES) ----------
+  function getDateRange() {
+    let start, end;
+    const period = periodSelect.value;
+    const now = new Date();
+    const endDateVal = endDateInput.value;
+    const startDateVal = startDateInput.value;
+    if (endDateVal && startDateVal) {
+      start = new Date(startDateVal);
+      end = new Date(endDateVal);
+      if (start > end) { start.setDate(start.getDate() - 1); }
+      return { start, end };
+    }
+    end = new Date(now);
+    if (period === 'max') {
+      start = new Date(2019, 0, 1); // início do contrato perpétuo
+    } else {
+      const days = parseInt(period) || 30;
+      start = new Date(now);
+      start.setDate(start.getDate() - days);
+    }
+    // Ajusta para início/fim do dia
+    start.setHours(0,0,0,0);
+    end.setHours(23,59,59,999);
+    return { start, end };
+  }
 
-  // 1. FUNDING RATE (histórico completo com paginação)
-  async function fetchFundingRate(startDate, endDate) {
-    log(`🔄 Coletando Funding Rate desde ${startDate.toISOString().split('T')[0]} ...`, 'info');
-    const allData = [];
-    let currentStart = startDate.getTime();
-    const end = endDate.getTime();
+  // ---------- FUNÇÕES DE BUSCA ----------
+  async function fetchFundingRate(start, end) {
+    const all = [];
+    let currentStart = start.getTime();
+    const endTime = end.getTime();
     const limit = 1000;
-    let hasMore = true;
-    let page = 1;
-
-    while (hasMore && currentStart < end) {
-      const url = `${BINANCE_FAPI}/fapi/v1/fundingRate?symbol=${SYMBOL}&startTime=${currentStart}&endTime=${end}&limit=${limit}`;
-      try {
-        const resp = await fetch(url);
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        const data = await resp.json();
-        if (!data || data.length === 0) {
-          hasMore = false;
-          break;
-        }
-        allData.push(...data);
-        log(`📦 Página ${page}: +${data.length} registros (total ${allData.length})`, 'info');
-        // Próxima página: último timestamp + 1ms
-        const last = data[data.length - 1];
-        currentStart = last.fundingTime + 1;
-        page++;
-        // Pequena pausa para não sobrecarregar
-        await new Promise(r => setTimeout(r, 100));
-      } catch (err) {
-        log(`Erro na página ${page}: ${err.message}`, 'err');
-        hasMore = false;
-        break;
-      }
+    let page = 0;
+    while (currentStart < endTime) {
+      const url = `${BINANCE_FAPI}/fapi/v1/fundingRate?symbol=${SYMBOL}&startTime=${currentStart}&endTime=${endTime}&limit=${limit}`;
+      const resp = await fetch(url);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data = await resp.json();
+      if (!data || data.length === 0) break;
+      all.push(...data);
+      currentStart = data[data.length-1].fundingTime + 1;
+      page++;
+      if (page > 50) break; // segurança
     }
-
-    if (allData.length === 0) {
-      log('⚠️ Nenhum dado de funding rate encontrado.', 'err');
-      return null;
-    }
-
-    // Converter para CSV
-    const headers = ['fundingTime', 'fundingRate', 'symbol', 'markPrice'];
-    const rows = allData.map(item => ({
-      fundingTime: new Date(item.fundingTime).toISOString(),
-      fundingRate: item.fundingRate,
-      symbol: item.symbol,
-      markPrice: item.markPrice
+    return all.map(item => ({
+      data: formatDate(item.fundingTime),
+      fundingRate: parseFloat(item.fundingRate),
+      markPrice: parseFloat(item.markPrice)
     }));
-    const csv = formatCSV(rows, headers);
-    log(`✅ Funding Rate concluído: ${allData.length} registros.`, 'ok');
-    return csv;
   }
 
-  // 2. OPEN INTEREST (histórico limitado a 30 dias pela Binance)
   async function fetchOpenInterest() {
-    log('🔄 Coletando Open Interest (últimos 30 dias - limite da Binance)...', 'info');
+    // Binance retorna apenas 30 dias via este endpoint (ou limit=500)
     const url = `${BINANCE_FAPI}/futures/data/openInterestHist?symbol=${SYMBOL}&period=1h&limit=500`;
-    try {
-      const resp = await fetch(url);
-      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-      const data = await resp.json();
-      if (!data || data.length === 0) {
-        log('⚠️ Nenhum dado de OI encontrado.', 'err');
-        return null;
-      }
-      const headers = ['timestamp', 'sumOpenInterest', 'sumOpenInterestValue', 'symbol'];
-      const rows = data.map(item => ({
-        timestamp: new Date(item.timestamp).toISOString(),
-        sumOpenInterest: item.sumOpenInterest,
-        sumOpenInterestValue: item.sumOpenInterestValue,
-        symbol: item.symbol
-      }));
-      const csv = formatCSV(rows, headers);
-      log(`✅ OI concluído: ${data.length} registros (últimos 30 dias).`, 'ok');
-      return csv;
-    } catch (err) {
-      log(`Erro OI: ${err.message}`, 'err');
-      return null;
-    }
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+    return data.map(item => ({
+      data: formatDate(item.timestamp),
+      sumOpenInterest: parseFloat(item.sumOpenInterest),
+      sumOpenInterestValue: parseFloat(item.sumOpenInterestValue)
+    }));
   }
 
-  // 3. LONG/SHORT RATIO (histórico limitado a 30 dias)
   async function fetchLongShortRatio() {
-    log('🔄 Coletando Long/Short Ratio (últimos 30 dias)...', 'info');
     const url = `${BINANCE_FAPI}/fapi/v1/topLongShortAccountRatio?symbol=${SYMBOL}&period=1h&limit=500`;
-    try {
-      const resp = await fetch(url);
-      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-      const data = await resp.json();
-      if (!data || data.length === 0) {
-        log('⚠️ Nenhum dado de Long/Short encontrado.', 'err');
-        return null;
-      }
-      const headers = ['timestamp', 'longAccount', 'shortAccount', 'longShortRatio'];
-      const rows = data.map(item => ({
-        timestamp: new Date(item.timestamp).toISOString(),
-        longAccount: item.longAccount,
-        shortAccount: item.shortAccount,
-        longShortRatio: item.longShortRatio
-      }));
-      const csv = formatCSV(rows, headers);
-      log(`✅ Long/Short concluído: ${data.length} registros.`, 'ok');
-      return csv;
-    } catch (err) {
-      log(`Erro Long/Short: ${err.message}`, 'err');
-      return null;
-    }
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+    return data.map(item => ({
+      data: formatDate(item.timestamp),
+      longAccount: parseFloat(item.longAccount),
+      shortAccount: parseFloat(item.shortAccount),
+      longShortRatio: parseFloat(item.longShortRatio)
+    }));
   }
 
-  // 4. MVRV, SOPR, Realized Price – usamos CoinGecko como proxy (preço, mercado, volume)
-  // Nota: CoinGecko não fornece MVRV/SOPR, mas podemos baixar dados de mercado para simular.
-  async function fetchOnChainProxy() {
-    log('🔄 Coletando dados de mercado (preço, market cap, volume) – proxy para on-chain...', 'info');
-    const { start, end } = getDateRange();
+  async function fetchMarketData(start, end) {
+    // CoinGecko – máximo 365 dias por chamada, mas podemos usar 'max' até 2019
     const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
     const url = `${COINGECKO_API}/coins/bitcoin/market_chart?vs_currency=usd&days=${days}&interval=daily`;
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+    if (!data.prices) return [];
+    // Combinar preço, market cap e volume
+    const prices = data.prices || [];
+    const marketCaps = data.market_caps || [];
+    const volumes = data.total_volumes || [];
+    const result = [];
+    for (let i = 0; i < prices.length; i++) {
+      const ts = prices[i][0];
+      result.push({
+        data: formatDate(ts),
+        price: prices[i][1],
+        marketCap: marketCaps[i]?.[1] || 0,
+        volume: volumes[i]?.[1] || 0
+      });
+    }
+    return result;
+  }
+
+  // ---------- CARREGAR TODOS OS DADOS ----------
+  async function loadAllData() {
+    const { start, end } = getDateRange();
+    setStatus(`⏳ Carregando dados de ${start.toLocaleDateString()} até ${end.toLocaleDateString()}...`, true);
+    loadBtn.disabled = true;
+    downloadAllBtn.disabled = true;
+
     try {
-      const resp = await fetch(url);
-      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-      const data = await resp.json();
-      if (!data || !data.prices || data.prices.length === 0) {
-        log('⚠️ Nenhum dado de mercado retornado.', 'err');
-        return null;
-      }
-      // Monta CSV com preço, market cap, volume
-      const headers = ['date', 'price', 'market_cap', 'total_volume'];
-      const rows = data.prices.map((item, idx) => ({
-        date: new Date(item[0]).toISOString().split('T')[0],
-        price: item[1],
-        market_cap: data.market_caps?.[idx]?.[1] ?? '',
-        total_volume: data.total_volumes?.[idx]?.[1] ?? ''
-      }));
-      const csv = formatCSV(rows, headers);
-      log(`✅ Dados de mercado (proxy) concluídos: ${rows.length} dias.`, 'ok');
-      return csv;
+      // Buscar em paralelo
+      const [funding, oi, ls, market] = await Promise.all([
+        fetchFundingRate(start, end),
+        fetchOpenInterest(),
+        fetchLongShortRatio(),
+        fetchMarketData(start, end)
+      ]);
+
+      allData = { funding, oi, ls, market };
+      renderCards();
+      setStatus(`✅ Dados carregados: Funding (${funding.length}), OI (${oi.length}), Long/Short (${ls.length}), Mercado (${market.length})`);
     } catch (err) {
-      log(`Erro ao buscar dados de mercado: ${err.message}`, 'err');
-      return null;
+      setStatus(`❌ Erro: ${err.message}`);
+      console.error(err);
+    } finally {
+      loadBtn.disabled = false;
+      downloadAllBtn.disabled = false;
     }
   }
-
-  // 5. ETF FLOWS – não há API gratuita; fornecemos link para manual
-  function getETFManualLink() {
-    return 'https://farside.co.uk/bitcoin-etf-flow/';
-  }
-
-  // 6. EXCHANGE NETFLOW – tentamos via CryptoQuant (não tem API pública gratuita). Usamos CoinGecko como fallback?
-  // Vamos usar o mesmo proxy de mercado, pois não temos netflow.
-  // Ou podemos usar o endpoint da Glassnode free? Exige chave.
-  // Então, para este, vamos indicar que não é possível.
-
-  // 7. ORDER BOOK – indisponível.
-
-  // ---------- DEFINIÇÃO DOS CARDS ----------
-  const indicators = [
-    {
-      id: 'funding',
-      name: 'Funding Rate',
-      desc: 'Taxa de financiamento histórica (completa desde 2020).',
-      source: 'Binance Futures API',
-      action: fetchFundingRate,
-      filename: 'funding_rate_btc.csv',
-      params: true // usa datas
-    },
-    {
-      id: 'oi',
-      name: 'Open Interest (OI)',
-      desc: 'Últimos 30 dias (limite da Binance).',
-      source: 'Binance Futures API',
-      action: fetchOpenInterest,
-      filename: 'open_interest_btc.csv',
-      params: false
-    },
-    {
-      id: 'ls',
-      name: 'Long/Short Ratio',
-      desc: 'Últimos 30 dias (limite da Binance).',
-      source: 'Binance Futures API',
-      action: fetchLongShortRatio,
-      filename: 'long_short_ratio_btc.csv',
-      params: false
-    },
-    {
-      id: 'onchain',
-      name: 'Dados On-Chain (Proxy)',
-      desc: 'Preço, Market Cap e Volume diário (CoinGecko) – substituto para MVRV/SOPR/Realized Price.',
-      source: 'CoinGecko API',
-      action: fetchOnChainProxy,
-      filename: 'onchain_proxy_btc.csv',
-      params: true
-    },
-    {
-      id: 'etf',
-      name: 'ETF Flows',
-      desc: 'Não há API gratuita. Clique para abrir a página do Farside Investors e baixar manualmente.',
-      source: 'Farside Investors',
-      action: null,
-      filename: null,
-      params: false,
-      link: getETFManualLink()
-    },
-    {
-      id: 'orderbook',
-      name: 'Order Book (Profundidade)',
-      desc: '❌ Histórico indisponível publicamente. Simule com volume ou ignore no backtest.',
-      source: '—',
-      action: null,
-      filename: null,
-      params: false,
-      link: null
-    }
-  ];
 
   // ---------- RENDERIZAR CARDS ----------
   function renderCards() {
-    cardsContainer.innerHTML = '';
+    cardsGrid.innerHTML = '';
+
+    // Definir indicadores
+    const indicators = [
+      { id: 'funding', label: 'Funding Rate', source: 'Binance Futures API', data: allData.funding || [],
+        columns: ['data', 'fundingRate', 'markPrice'], format: { fundingRate: n => (n*100).toFixed(4)+'%', markPrice: n => '$'+formatNumber(n) } },
+      { id: 'oi', label: 'Open Interest (OI)', source: 'Binance Futures API (últimos 30d)', data: allData.oi || [],
+        columns: ['data', 'sumOpenInterest', 'sumOpenInterestValue'], format: { sumOpenInterest: n => formatNumber(n), sumOpenInterestValue: n => '$'+formatNumber(n) } },
+      { id: 'ls', label: 'Long/Short Ratio', source: 'Binance Futures API (últimos 30d)', data: allData.ls || [],
+        columns: ['data', 'longAccount', 'shortAccount', 'longShortRatio'], format: { longAccount: n => n.toFixed(2)+'%', shortAccount: n => n.toFixed(2)+'%', longShortRatio: n => n.toFixed(3) } },
+      { id: 'market', label: 'Dados de Mercado (proxy on-chain)', source: 'CoinGecko API', data: allData.market || [],
+        columns: ['data', 'price', 'marketCap', 'volume'], format: { price: n => '$'+formatNumber(n), marketCap: n => '$'+formatNumber(n), volume: n => '$'+formatNumber(n) } }
+    ];
+
     indicators.forEach(ind => {
       const card = document.createElement('div');
       card.className = 'card';
-      card.id = `card-${ind.id}`;
 
-      const sourceBadge = ind.source ? `<span class="source">${ind.source}</span>` : '';
-      const desc = ind.desc || '';
+      // Header
+      const header = document.createElement('div');
+      header.className = 'card-header';
+      header.innerHTML = `<h3>${ind.label}</h3><span class="source">${ind.source}</span>`;
+      card.appendChild(header);
 
-      let actionsHtml = '';
-      if (ind.action) {
-        const btnLabel = ind.params ? 'Baixar (com datas)' : 'Baixar';
-        actionsHtml = `<button class="btn btn-primary" onclick="collectAndDownload('${ind.id}')">⬇️ ${btnLabel}</button>`;
-      } else if (ind.link) {
-        actionsHtml = `<a href="${ind.link}" target="_blank" class="btn" style="background:#f0e6ff;">🔗 Acessar manual</a>`;
+      // Body (tabela)
+      const body = document.createElement('div');
+      body.className = 'card-body';
+      if (ind.data.length === 0) {
+        body.innerHTML = '<div class="empty-msg">Nenhum dado disponível</div>';
       } else {
-        actionsHtml = `<span style="color:#888;">Indisponível</span>`;
-      }
+        const table = document.createElement('table');
+        const thead = document.createElement('thead');
+        const trHead = document.createElement('tr');
+        ind.columns.forEach(col => {
+          const th = document.createElement('th');
+          th.textContent = col;
+          trHead.appendChild(th);
+        });
+        thead.appendChild(trHead);
+        table.appendChild(thead);
 
-      card.innerHTML = `
-        <h3>${ind.name} ${sourceBadge}</h3>
-        <p>${desc}</p>
-        <div class="actions">${actionsHtml}</div>
-      `;
-      cardsContainer.appendChild(card);
+        const tbody = document.createElement('tbody');
+        // Mostrar últimos 50 registros (para não sobrecarregar)
+        const displayData = ind.data.slice(-50);
+        displayData.forEach(row => {
+          const tr = document.createElement('tr');
+          ind.columns.forEach(col => {
+            const td = document.createElement('td');
+            let val = row[col];
+            if (ind.format && ind.format[col]) {
+              val = ind.format[col](val);
+            } else if (typeof val === 'number') {
+              val = formatNumber(val);
+            } else {
+              val = val ?? '';
+            }
+            td.textContent = val;
+            tr.appendChild(td);
+          });
+          tbody.appendChild(tr);
+        });
+        table.appendChild(tbody);
+        body.appendChild(table);
+        if (ind.data.length > 50) {
+          const note = document.createElement('div');
+          note.style.fontSize = '0.7rem';
+          note.style.color = '#6b7280';
+          note.style.textAlign = 'right';
+          note.textContent = `Exibindo últimos 50 de ${ind.data.length} registros`;
+          body.appendChild(note);
+        }
+      }
+      card.appendChild(body);
+
+      // Actions
+      const actions = document.createElement('div');
+      actions.className = 'card-actions';
+      const btnDownload = document.createElement('button');
+      btnDownload.className = 'btn btn-primary';
+      btnDownload.textContent = '📥 Download CSV';
+      btnDownload.onclick = () => {
+        if (ind.data.length === 0) { alert('Sem dados para baixar.'); return; }
+        downloadCSV(ind.data, `${ind.id}_btc.csv`);
+      };
+      actions.appendChild(btnDownload);
+      card.appendChild(actions);
+
+      cardsGrid.appendChild(card);
     });
   }
-  renderCards();
 
-  // ---------- FUNÇÕES DE COLETA E DOWNLOAD ----------
-  async function collectAndDownload(indicatorId) {
-    const ind = indicators.find(i => i.id === indicatorId);
-    if (!ind || !ind.action) {
-      log(`❌ ${indicatorId} não possui coletor automático.`, 'err');
-      return;
-    }
-
-    try {
-      const { start, end } = getDateRange();
-      let csv = null;
-      if (ind.params) {
-        csv = await ind.action(start, end);
-      } else {
-        csv = await ind.action();
+  // ---------- DOWNLOAD ALL ----------
+  function downloadAllCSV() {
+    const indicators = [
+      { id: 'funding', label: 'Funding Rate', data: allData.funding || [] },
+      { id: 'oi', label: 'Open Interest', data: allData.oi || [] },
+      { id: 'ls', label: 'LongShort', data: allData.ls || [] },
+      { id: 'market', label: 'MarketData', data: allData.market || [] }
+    ];
+    let anyDownloaded = false;
+    indicators.forEach(ind => {
+      if (ind.data.length > 0) {
+        downloadCSV(ind.data, `${ind.id}_btc.csv`);
+        anyDownloaded = true;
       }
-
-      if (csv) {
-        downloadCSV(csv, ind.filename);
-        log(`📥 Arquivo "${ind.filename}" baixado com sucesso.`, 'ok');
-      } else {
-        log(`⚠️ Nenhum dado retornado para ${ind.name}.`, 'err');
-      }
-    } catch (err) {
-      log(`❌ Erro ao coletar ${ind.name}: ${err.message}`, 'err');
-    }
+    });
+    if (!anyDownloaded) alert('Nenhum dado para baixar. Carregue os dados primeiro.');
   }
 
-  // ---------- DOWNLOAD ALL (sequencial) ----------
-  async function downloadAll() {
-    log('🔄 Iniciando download de todos os indicadores...', 'info');
-    for (const ind of indicators) {
-      if (ind.action) {
-        log(`⏳ Processando ${ind.name}...`, 'info');
-        await collectAndDownload(ind.id);
-        await new Promise(r => setTimeout(r, 500));
-      } else {
-        log(`⏭️ Pulando ${ind.name} (sem coleta automática).`, 'info');
-      }
-    }
-    log('✅ Todos os downloads sequenciais concluídos.', 'ok');
-  }
+  // ---------- EVENTOS ----------
+  loadBtn.addEventListener('click', loadAllData);
+  downloadAllBtn.addEventListener('click', downloadAllCSV);
 
-  // Botão para definir datas 4 anos atrás
-  window.setDefaultDates = setDefaultDates;
-  window.collectAndDownload = collectAndDownload;
-  window.downloadAll = downloadAll;
-  window.clearLogs = clearLogs;
+  // Carregar automaticamente ao abrir
+  window.addEventListener('load', () => {
+    // Definir datas padrão (últimos 30 dias)
+    const now = new Date();
+    const past = new Date(now);
+    past.setDate(past.getDate() - 30);
+    startDateInput.value = past.toISOString().split('T')[0];
+    endDateInput.value = now.toISOString().split('T')[0];
+    loadAllData();
+  });
 </script>
-
 </body>
 </html>
